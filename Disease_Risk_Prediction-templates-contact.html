@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content text-center">
+      <span class="section-badge mb-3"><i class="bi bi-envelope me-1"></i>Get In Touch</span>
+      <h1 class="page-hero-title">Contact <span class="gradient-text">Us</span></h1>
+      <p class="page-hero-subtitle">Have questions or feedback? We'd love to hear from you.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container">
+    <div class="row gy-4 justify-content-center">
+
+      <!-- Contact Info -->
+      <div class="col-lg-4">
+        <div class="glass-card h-100">
+          <h4 class="card-section-title mb-4"><i class="bi bi-info-circle me-2 text-accent"></i>Project Info</h4>
+          <div class="contact-info-list">
+            <div class="contact-info-item">
+              <div class="contact-info-icon"><i class="bi bi-mortarboard-fill"></i></div>
+              <div>
+                <div class="cii-label">Programme</div>
+                <div class="cii-value">MCA (AI & ML)</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon"><i class="bi bi-folder2-open"></i></div>
+              <div>
+                <div class="cii-label">Project Type</div>
+                <div class="cii-value">Minor Project</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon"><i class="bi bi-cpu-fill"></i></div>
+              <div>
+                <div class="cii-label">Tech Stack</div>
+                <div class="cii-value">Python, Flask, Scikit-learn</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon"><i class="bi bi-envelope-fill"></i></div>
+              <div>
+                <div class="cii-label">Email</div>
+                <div class="cii-value">healthai@project.edu</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="contact-info-icon"><i class="bi bi-github"></i></div>
+              <div>
+                <div class="cii-label">Source Code</div>
+                <div class="cii-value">github.com/disease-risk-ai</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top border-secondary">
+            <h6 class="text-muted mb-3">Quick Links</h6>
+            <div class="d-flex flex-wrap gap-2">
+              <a href="{{ url_for('predict') }}" class="btn btn-sm btn-outline-accent">Predict Now</a>
+              <a href="{{ url_for('comparison') }}" class="btn btn-sm btn-outline-accent">View Models</a>
+              <a href="{{ url_for('about') }}" class="btn btn-sm btn-outline-accent">About Project</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="col-lg-7">
+        <div class="glass-card">
+          <h4 class="card-section-title mb-4"><i class="bi bi-chat-dots me-2 text-accent"></i>Send a Message</h4>
+          <form method="POST" action="{{ url_for('contact') }}" id="contactForm">
+            <div class="row gy-3">
+              <div class="col-md-6">
+                <label for="name" class="form-label">Full Name <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-person input-icon"></i>
+                  <input type="text" class="form-control form-control-custom" id="name" name="name"
+                         placeholder="Your full name" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-envelope input-icon"></i>
+                  <input type="email" class="form-control form-control-custom" id="email" name="email"
+                         placeholder="your@email.com" required />
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="subject" class="form-label">Subject</label>
+                <div class="input-group-custom">
+                  <i class="bi bi-tag input-icon"></i>
+                  <input type="text" class="form-control form-control-custom" id="subject" name="subject"
+                         placeholder="What is your message about?" />
+                </div>
+              </div>
+              <div class="col-12">
+                <label for="message" class="form-label">Message <span class="text-danger">*</span></label>
+                <textarea class="form-control form-control-custom" id="message" name="message"
+                          rows="5" placeholder="Write your message here..." required></textarea>
+              </div>
+              <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-accent btn-lg px-5 btn-glow">
+                  <i class="bi bi-send me-2"></i>Send Message
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

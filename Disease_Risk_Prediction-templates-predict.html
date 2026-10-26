@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+{% block title %}Disease Risk Prediction — Enter Patient Data{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content text-center">
+      <span class="section-badge mb-3"><i class="bi bi-activity me-1"></i>Prediction Tool</span>
+      <h1 class="page-hero-title">Disease Risk <span class="gradient-text">Assessment</span></h1>
+      <p class="page-hero-subtitle">Enter the patient's clinical data below to receive an AI-powered risk assessment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Prediction Form -->
+<section class="section-padding">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-9">
+
+        <!-- Info Banner -->
+        <div class="info-banner glass-card mb-4">
+          <i class="bi bi-info-circle-fill text-accent me-3 fs-5"></i>
+          <div>
+            <strong>How to use:</strong> Fill in all 11 fields below with accurate clinical values.
+            All fields are required for optimal prediction accuracy.
+          </div>
+        </div>
+
+        <!-- Main Form Card -->
+        <div class="form-card glass-card">
+          <div class="form-card-header mb-4">
+            <div class="form-card-icon">
+              <i class="bi bi-clipboard-pulse-fill"></i>
+            </div>
+            <div>
+              <h4 class="mb-1">Patient Clinical Data</h4>
+              <p class="text-muted mb-0">All fields marked with <span class="text-danger">*</span> are required.</p>
+            </div>
+          </div>
+
+          <form id="predictionForm" method="POST" action="{{ url_for('predict') }}" novalidate>
+
+            <!-- Row 1: Demographics -->
+            <div class="form-section-title">
+              <i class="bi bi-person-fill me-2"></i>Demographics
+            </div>
+            <div class="row gy-3 mb-4">
+              <div class="col-md-4">
+                <label for="age" class="form-label">Age <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-calendar3 input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="age" name="age"
+                         min="1" max="120" placeholder="e.g. 45" required />
+                </div>
+                <div class="form-text">Between 1 – 120 years</div>
+              </div>
+              <div class="col-md-4">
+                <label for="gender" class="form-label">Gender <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-gender-ambiguous input-icon"></i>
+                  <select class="form-select form-control-custom" id="gender" name="gender" required>
+                    <option value="" disabled selected>Select gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="bmi" class="form-label">BMI <span class="text-danger">*</span>
+                  <span class="badge-pill" id="bmiCategory">—</span>
+                </label>
+                <div class="input-group-custom">
+                  <i class="bi bi-speedometer input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="bmi" name="bmi"
+                         min="10" max="60" step="0.1" placeholder="e.g. 26.5" required />
+                </div>
+                <div class="form-text">Normal: 18.5 – 24.9 kg/m²</div>
+              </div>
+            </div>
+
+            <!-- Row 2: Vitals -->
+            <div class="form-section-title">
+              <i class="bi bi-heart-pulse me-2"></i>Vital Signs
+            </div>
+            <div class="row gy-3 mb-4">
+              <div class="col-md-4">
+                <label for="blood_pressure" class="form-label">Blood Pressure <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-droplet-fill input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="blood_pressure" name="blood_pressure"
+                         min="40" max="200" placeholder="e.g. 80" required />
+                </div>
+                <div class="form-text">Diastolic, mmHg (Normal: 60–80)</div>
+              </div>
+              <div class="col-md-4">
+                <label for="heart_rate" class="form-label">Heart Rate <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-heart input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="heart_rate" name="heart_rate"
+                         min="30" max="200" placeholder="e.g. 72" required />
+                </div>
+                <div class="form-text">Beats per minute (Normal: 60–100)</div>
+              </div>
+              <div class="col-md-4">
+                <label for="cholesterol" class="form-label">Cholesterol <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-bar-chart-fill input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="cholesterol" name="cholesterol"
+                         min="80" max="500" placeholder="e.g. 200" required />
+                </div>
+                <div class="form-text">mg/dL (Desirable: &lt;200)</div>
+              </div>
+            </div>
+
+            <!-- Row 3: Lab Results -->
+            <div class="form-section-title">
+              <i class="bi bi-droplet me-2"></i>Laboratory Results
+            </div>
+            <div class="row gy-3 mb-4">
+              <div class="col-md-6">
+                <label for="glucose" class="form-label">Blood Glucose <span class="text-danger">*</span>
+                  <span class="badge-pill" id="glucoseCategory">—</span>
+                </label>
+                <div class="input-group-custom">
+                  <i class="bi bi-thermometer-half input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="glucose" name="glucose"
+                         min="40" max="400" placeholder="e.g. 95" required />
+                </div>
+                <div class="form-text">Fasting glucose, mg/dL (Normal: 70–99)</div>
+              </div>
+              <div class="col-md-6">
+                <label for="insulin" class="form-label">Insulin Level <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-moisture input-icon"></i>
+                  <input type="number" class="form-control form-control-custom" id="insulin" name="insulin"
+                         min="0" max="900" step="0.1" placeholder="e.g. 80" required />
+                </div>
+                <div class="form-text">μU/mL (Normal: 2–25)</div>
+              </div>
+            </div>
+
+            <!-- Row 4: Lifestyle -->
+            <div class="form-section-title">
+              <i class="bi bi-person-walking me-2"></i>Lifestyle Factors
+            </div>
+            <div class="row gy-3 mb-4">
+              <div class="col-md-4">
+                <label for="smoking" class="form-label">Smoking Status <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-wind input-icon"></i>
+                  <select class="form-select form-control-custom" id="smoking" name="smoking" required>
+                    <option value="" disabled selected>Select status</option>
+                    <option value="Never">Never Smoked</option>
+                    <option value="Former">Former Smoker</option>
+                    <option value="Current">Current Smoker</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="family_history" class="form-label">Family History <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-people-fill input-icon"></i>
+                  <select class="form-select form-control-custom" id="family_history" name="family_history" required>
+                    <option value="" disabled selected>Diabetes in family?</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label for="exercise" class="form-label">Exercise Level <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-bicycle input-icon"></i>
+                  <select class="form-select form-control-custom" id="exercise" name="exercise" required>
+                    <option value="" disabled selected>Select level</option>
+                    <option value="Low">Low (&lt;60 min/week)</option>
+                    <option value="Moderate">Moderate (1–3 hrs/week)</option>
+                    <option value="High">High (&gt;3 hrs/week)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-flex gap-3 mt-4 flex-wrap">
+              <button type="submit" class="btn btn-accent btn-lg px-5 btn-glow" id="submitBtn">
+                <i class="bi bi-cpu me-2"></i>Analyse Risk
+              </button>
+              <button type="reset" class="btn btn-outline-glass btn-lg px-4" onclick="resetForm()">
+                <i class="bi bi-arrow-counterclockwise me-2"></i>Reset
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- Sample Data Buttons -->
+        <div class="glass-card mt-4 p-3">
+          <small class="text-muted fw-600 d-block mb-2">
+            <i class="bi bi-lightning-fill text-accent me-1"></i>Quick-fill with sample data:
+          </small>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-sm btn-outline-success" onclick="fillSample('low')">
+              <i class="bi bi-shield-check me-1"></i>Low Risk Profile
+            </button>
+            <button class="btn btn-sm btn-outline-warning" onclick="fillSample('medium')">
+              <i class="bi bi-exclamation-triangle me-1"></i>Medium Risk Profile
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="fillSample('high')">
+              <i class="bi bi-heart-pulse me-1"></i>High Risk Profile
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Sample data profiles
+  const samples = {
+    low: {
+      age: 28, gender: 'Female', bmi: 22.5, blood_pressure: 70,
+      heart_rate: 68, cholesterol: 170, glucose: 85, insulin: 18,
+      smoking: 'Never', family_history: 'No', exercise: 'High'
+    },
+    medium: {
+      age: 45, gender: 'Male', bmi: 28.2, blood_pressure: 88,
+      heart_rate: 78, cholesterol: 210, glucose: 115, insulin: 55,
+      smoking: 'Former', family_history: 'Yes', exercise: 'Moderate'
+    },
+    high: {
+      age: 62, gender: 'Male', bmi: 36.8, blood_pressure: 115,
+      heart_rate: 92, cholesterol: 280, glucose: 175, insulin: 180,
+      smoking: 'Current', family_history: 'Yes', exercise: 'Low'
+    }
+  };
+
+  function fillSample(type) {
+    const s = samples[type];
+    document.getElementById('age').value = s.age;
+    document.getElementById('gender').value = s.gender;
+    document.getElementById('bmi').value = s.bmi;
+    document.getElementById('blood_pressure').value = s.blood_pressure;
+    document.getElementById('heart_rate').value = s.heart_rate;
+    document.getElementById('cholesterol').value = s.cholesterol;
+    document.getElementById('glucose').value = s.glucose;
+    document.getElementById('insulin').value = s.insulin;
+    document.getElementById('smoking').value = s.smoking;
+    document.getElementById('family_history').value = s.family_history;
+    document.getElementById('exercise').value = s.exercise;
+    updateBMICategory();
+    updateGlucoseCategory();
+  }
+
+  function resetForm() {
+    document.getElementById('bmiCategory').textContent = '—';
+    document.getElementById('glucoseCategory').textContent = '—';
+  }
+
+  function updateBMICategory() {
+    const bmi = parseFloat(document.getElementById('bmi').value);
+    const el = document.getElementById('bmiCategory');
+    if (isNaN(bmi)) { el.textContent = '—'; el.className = 'badge-pill'; return; }
+    if (bmi < 18.5)       { el.textContent = 'Underweight'; el.className = 'badge-pill badge-info'; }
+    else if (bmi < 25)    { el.textContent = 'Normal'; el.className = 'badge-pill badge-success'; }
+    else if (bmi < 30)    { el.textContent = 'Overweight'; el.className = 'badge-pill badge-warning'; }
+    else                  { el.textContent = 'Obese'; el.className = 'badge-pill badge-danger'; }
+  }
+
+  function updateGlucoseCategory() {
+    const g = parseInt(document.getElementById('glucose').value);
+    const el = document.getElementById('glucoseCategory');
+    if (isNaN(g)) { el.textContent = '—'; el.className = 'badge-pill'; return; }
+    if (g < 70)         { el.textContent = 'Low'; el.className = 'badge-pill badge-info'; }
+    else if (g <= 99)   { el.textContent = 'Normal'; el.className = 'badge-pill badge-success'; }
+    else if (g <= 125)  { el.textContent = 'Pre-Diabetic'; el.className = 'badge-pill badge-warning'; }
+    else                { el.textContent = 'Diabetic Range'; el.className = 'badge-pill badge-danger'; }
+  }
+
+  document.getElementById('bmi').addEventListener('input', updateBMICategory);
+  document.getElementById('glucose').addEventListener('input', updateGlucoseCategory);
+
+  // Animate submit
+  document.getElementById('predictionForm').addEventListener('submit', function(e) {
+    if (this.checkValidity()) {
+      const btn = document.getElementById('submitBtn');
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analysing...';
+      btn.disabled = true;
+    }
+  });
+</script>
+{% endblock %}

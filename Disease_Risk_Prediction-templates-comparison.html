@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Model Comparison — ML Performance Analysis{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content text-center">
+      <span class="section-badge mb-3"><i class="bi bi-bar-chart-line me-1"></i>ML Analytics</span>
+      <h1 class="page-hero-title">Model <span class="gradient-text">Performance Comparison</span></h1>
+      <p class="page-hero-subtitle">
+        Side-by-side evaluation of all 5 machine learning algorithms.
+        Best Model: <strong class="text-accent">{{ best_model }}</strong>
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container">
+
+    <!-- Metrics Table -->
+    <div class="glass-card mb-5">
+      <h4 class="card-section-title mb-4">
+        <i class="bi bi-table me-2 text-accent"></i>Evaluation Metrics
+      </h4>
+      <div class="table-responsive">
+        <table class="table metrics-table" id="metricsTable">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Accuracy</th>
+              <th>Precision</th>
+              <th>Recall</th>
+              <th>F1 Score</th>
+              <th>ROC-AUC</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, metrics in results.items() %}
+            <tr class="{{ 'best-model-row' if name == best_model else '' }}">
+              <td class="model-name-cell">
+                <div class="model-badge">
+                  {% if name == best_model %}
+                  <span class="best-badge"><i class="bi bi-trophy-fill me-1"></i>Best</span>
+                  {% endif %}
+                  {{ name }}
+                </div>
+              </td>
+              <td><div class="metric-bar-cell"><div class="mini-bar" style="--pct: {{ (metrics.accuracy * 100)|int }}%"><span>{{ '%.4f'|format(metrics.accuracy) }}</span></div></div></td>
+              <td><div class="metric-bar-cell"><div class="mini-bar" style="--pct: {{ (metrics.precision * 100)|int }}%"><span>{{ '%.4f'|format(metrics.precision) }}</span></div></div></td>
+              <td><div class="metric-bar-cell"><div class="mini-bar" style="--pct: {{ (metrics.recall * 100)|int }}%"><span>{{ '%.4f'|format(metrics.recall) }}</span></div></div></td>
+              <td><div class="metric-bar-cell"><div class="mini-bar" style="--pct: {{ (metrics.f1 * 100)|int }}%"><span>{{ '%.4f'|format(metrics.f1) }}</span></div></div></td>
+              <td><div class="metric-bar-cell"><div class="mini-bar" style="--pct: {{ (metrics.roc_auc * 100)|int }}%"><span>{{ '%.4f'|format(metrics.roc_auc) }}</span></div></div></td>
+              <td>
+                {% if name == best_model %}
+                <span class="badge bg-success"><i class="bi bi-star-fill me-1"></i>Selected</span>
+                {% else %}
+                <span class="badge bg-secondary">Evaluated</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Charts Grid -->
+    <div class="section-header mb-4">
+      <h4 class="card-section-title">
+        <i class="bi bi-graph-up-arrow me-2 text-accent"></i>Visualisation Charts
+      </h4>
+    </div>
+    <div class="row gy-4">
+      {% for filename, title in charts %}
+      <div class="col-lg-{% if loop.index <= 2 %}6{% else %}{% if filename == 'confusion_matrices.png' %}12{% else %}6{% endif %}{% endif %}">
+        <div class="chart-card glass-card">
+          <h5 class="chart-title">{{ title }}</h5>
+          <div class="chart-img-wrap">
+            <img src="{{ url_for('evaluation_chart', filename=filename) }}"
+                 alt="{{ title }}" class="chart-img" loading="lazy"
+                 onclick="openChartModal(this.src, '{{ title }}')" />
+            <div class="chart-overlay">
+              <i class="bi bi-zoom-in"></i> Click to enlarge
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Model Description Cards -->
+    <div class="mt-5">
+      <h4 class="card-section-title mb-4">
+        <i class="bi bi-info-circle me-2 text-accent"></i>Algorithm Overview
+      </h4>
+      <div class="row gy-3">
+        {% set algo_desc = {
+          'Logistic Regression': ('bi-graph-up-arrow', '#6C63FF', 'A statistical model that uses a logistic function to model a binary dependent variable. It estimates probabilities using a logistic/sigmoid function. Best suited for linearly separable data.'),
+          'Decision Tree': ('bi-diagram-3', '#FF6584', 'A tree-like model of decisions. Splits data recursively based on feature values to create decision rules. Highly interpretable but prone to overfitting.'),
+          'Random Forest': ('bi-tree', '#43C6AC', 'An ensemble of 150 decision trees trained on random data subsets. Reduces overfitting by averaging results. Generally provides the best balance of accuracy and robustness.'),
+          'SVM': ('bi-bounding-box', '#F7B731', 'Support Vector Machine finds the optimal hyperplane that best separates classes. Uses kernel trick (RBF) to handle non-linear boundaries. Effective in high-dimensional spaces.'),
+          'KNN': ('bi-bullseye', '#FC5C7D', 'K-Nearest Neighbors classifies based on the k=7 most similar training examples. No training phase required. Performance depends heavily on the choice of k and distance metric.'),
+        } %}
+        {% for name, metrics in results.items() %}
+        {% if name in algo_desc %}
+        {% set icon, color, desc = algo_desc[name] %}
+        <div class="col-md-6 col-lg-4">
+          <div class="algo-card glass-card h-100" style="--algo-color: {{ color }}">
+            <div class="algo-header">
+              <div class="algo-icon"><i class="bi {{ icon }}"></i></div>
+              <div>
+                <h6 class="algo-name">{{ name }}</h6>
+                <span class="algo-acc">Acc: {{ '%.2f'|format(metrics.accuracy * 100) }}%</span>
+              </div>
+            </div>
+            <p class="algo-desc mt-3">{{ desc }}</p>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Chart Modal -->
+<div class="modal fade" id="chartModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content glass-card border-0">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="chartModalTitle"></h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-2">
+        <img id="modalChartImg" src="" alt="" class="img-fluid rounded" style="max-height:80vh" />
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function openChartModal(src, title) {
+    document.getElementById('modalChartImg').src = src;
+    document.getElementById('chartModalTitle').textContent = title;
+    new bootstrap.Modal(document.getElementById('chartModal')).show();
+  }
+</script>
+{% endblock %}

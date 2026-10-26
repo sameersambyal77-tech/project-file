@@ -1,0 +1,2 @@
+# This file ensures the models/ directory is tracked.
+# Trained model files (.pkl, .json) will be saved here after running train_model.py

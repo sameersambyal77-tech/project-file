@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}Batch CSV Prediction{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content text-center">
+      <span class="section-badge mb-3"><i class="bi bi-file-earmark-spreadsheet me-1"></i>Batch Tool</span>
+      <h1 class="page-hero-title">Batch <span class="gradient-text">CSV Prediction</span></h1>
+      <p class="page-hero-subtitle">Upload a CSV file to predict disease risk for multiple patients at once.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container">
+    <div class="row gy-4">
+
+      <!-- Upload Card -->
+      <div class="col-lg-5">
+        <div class="glass-card">
+          <h4 class="card-section-title mb-4"><i class="bi bi-cloud-upload me-2 text-accent"></i>Upload CSV File</h4>
+
+          <form method="POST" action="{{ url_for('batch_predict') }}" enctype="multipart/form-data" id="batchForm">
+            <div class="csv-drop-zone" id="dropZone">
+              <i class="bi bi-file-earmark-spreadsheet fs-1 text-accent"></i>
+              <p class="mt-2 mb-1 fw-600">Drag & Drop CSV here</p>
+              <p class="text-muted small mb-3">or click to browse files</p>
+              <input type="file" name="csv_file" id="csvFile" accept=".csv" class="d-none" required />
+              <button type="button" class="btn btn-outline-glass btn-sm" onclick="document.getElementById('csvFile').click()">
+                <i class="bi bi-folder2-open me-1"></i>Browse File
+              </button>
+              <div id="fileName" class="mt-2 text-accent small"></div>
+            </div>
+
+            <button type="submit" class="btn btn-accent btn-lg w-100 btn-glow mt-3">
+              <i class="bi bi-cpu me-2"></i>Run Batch Prediction
+            </button>
+          </form>
+
+          <!-- CSV Template -->
+          <div class="mt-4 p-3 bg-section rounded-3">
+            <h6 class="mb-2"><i class="bi bi-file-earmark-code me-1 text-accent"></i>Required CSV Format</h6>
+            <p class="small text-muted mb-2">Your CSV file must have these column headers:</p>
+            <code class="small" style="word-break:break-all;">
+              Age, Gender, BMI, BloodPressure, Glucose, Insulin, HeartRate, Cholesterol, SmokingStatus, FamilyHistory, ExerciseLevel
+            </code>
+            <div class="mt-3">
+              <a href="#" onclick="downloadTemplate()" class="btn btn-sm btn-outline-accent">
+                <i class="bi bi-download me-1"></i>Download Template
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results -->
+      <div class="col-lg-7">
+        {% if results %}
+        <div class="glass-card">
+          <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <h4 class="card-section-title mb-0">
+              <i class="bi bi-list-check me-2 text-accent"></i>Results — {{ results|length }} Records
+            </h4>
+            <!-- Summary badges -->
+            {% set high_c = results|selectattr('result')|selectattr('result.risk_level', 'eq', 'High')|list|length %}
+            {% set med_c  = results|selectattr('result')|selectattr('result.risk_level', 'eq', 'Medium')|list|length %}
+            {% set low_c  = results|selectattr('result')|selectattr('result.risk_level', 'eq', 'Low')|list|length %}
+            <div class="d-flex gap-2">
+              <span class="badge bg-success">Low: {{ low_c }}</span>
+              <span class="badge bg-warning text-dark">Med: {{ med_c }}</span>
+              <span class="badge bg-danger">High: {{ high_c }}</span>
+            </div>
+          </div>
+          <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+            <table class="table metrics-table">
+              <thead class="sticky-top">
+                <tr><th>Row</th><th>Age</th><th>Gender</th><th>BMI</th><th>Glucose</th><th>Risk Level</th><th>Probability</th><th>Result</th></tr>
+              </thead>
+              <tbody>
+                {% for item in results %}
+                <tr>
+                  <td class="text-muted">{{ item.row }}</td>
+                  {% if item.result %}
+                  <td>{{ item.patient.Age }}</td>
+                  <td>{{ item.patient.Gender }}</td>
+                  <td>{{ item.patient.BMI }}</td>
+                  <td>{{ item.patient.Glucose }}</td>
+                  <td>
+                    <span class="risk-badge risk-{{ item.result.risk_level | lower }}">
+                      {{ item.result.risk_level }}
+                    </span>
+                  </td>
+                  <td>{{ item.result.probability }}%</td>
+                  <td>
+                    {% if item.result.prediction == 1 %}
+                    <span class="badge bg-danger">At Risk</span>
+                    {% else %}
+                    <span class="badge bg-success">No Risk</span>
+                    {% endif %}
+                  </td>
+                  {% else %}
+                  <td colspan="7" class="text-danger small">Error: {{ item.error }}</td>
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        {% else %}
+        <div class="glass-card text-center py-5">
+          <i class="bi bi-file-earmark-spreadsheet fs-1 text-muted"></i>
+          <h5 class="mt-3 text-muted">No Results Yet</h5>
+          <p class="text-muted">Upload a CSV file on the left to see batch predictions here.</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Drag & drop
+  const dropZone = document.getElementById('dropZone');
+  const csvFile  = document.getElementById('csvFile');
+  const fileName = document.getElementById('fileName');
+
+  csvFile.addEventListener('change', () => {
+    if (csvFile.files[0]) fileName.textContent = '📄 ' + csvFile.files[0].name;
+  });
+
+  dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      csvFile.files = dt.files;
+      fileName.textContent = '📄 ' + file.name;
+    }
+  });
+
+  // Download template CSV
+  function downloadTemplate() {
+    const headers = 'Age,Gender,BMI,BloodPressure,Glucose,Insulin,HeartRate,Cholesterol,SmokingStatus,FamilyHistory,ExerciseLevel\n';
+    const sample  = '45,Male,28.5,82,110,55,72,195,Never,No,Moderate\n35,Female,24.0,74,88,22,68,165,Never,Yes,High\n';
+    const blob    = new Blob([headers + sample], { type: 'text/csv' });
+    const url     = URL.createObjectURL(blob);
+    const a       = document.createElement('a');
+    a.href = url; a.download = 'batch_template.csv'; a.click();
+    URL.revokeObjectURL(url);
+  }
+</script>
+{% endblock %}

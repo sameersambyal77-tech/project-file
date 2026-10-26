@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Register — Create Account{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+      <div class="col-md-7 col-lg-6">
+        <div class="auth-card glass-card">
+          <div class="auth-header text-center mb-4">
+            <div class="auth-icon"><i class="bi bi-person-plus-fill"></i></div>
+            <h2 class="auth-title mt-3">Create Account</h2>
+            <p class="text-muted">Join HealthAI and start tracking your health risk</p>
+          </div>
+          <form method="POST" action="{{ url_for('register') }}" id="registerForm">
+            <div class="row gy-3">
+              <div class="col-md-6">
+                <label for="username" class="form-label">Username <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-person input-icon"></i>
+                  <input type="text" class="form-control form-control-custom" id="username"
+                         name="username" placeholder="Choose a username" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-envelope input-icon"></i>
+                  <input type="email" class="form-control form-control-custom" id="email"
+                         name="email" placeholder="your@email.com" required />
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-lock input-icon"></i>
+                  <input type="password" class="form-control form-control-custom" id="password"
+                         name="password" placeholder="Min 6 characters" required minlength="6" />
+                  <button type="button" class="input-icon-right" onclick="togglePwd('password')">
+                    <i class="bi bi-eye" id="eyeIcon-password"></i>
+                  </button>
+                </div>
+                <div class="password-strength mt-1" id="strengthBar"></div>
+              </div>
+              <div class="col-md-6">
+                <label for="confirm_password" class="form-label">Confirm Password <span class="text-danger">*</span></label>
+                <div class="input-group-custom">
+                  <i class="bi bi-lock-fill input-icon"></i>
+                  <input type="password" class="form-control form-control-custom" id="confirm_password"
+                         name="confirm_password" placeholder="Re-enter password" required />
+                  <button type="button" class="input-icon-right" onclick="togglePwd('confirm_password')">
+                    <i class="bi bi-eye" id="eyeIcon-confirm_password"></i>
+                  </button>
+                </div>
+                <div class="form-text" id="matchStatus"></div>
+              </div>
+              <div class="col-12 mt-2">
+                <button type="submit" class="btn btn-accent btn-lg w-100 btn-glow">
+                  <i class="bi bi-person-check me-2"></i>Create Account
+                </button>
+              </div>
+            </div>
+          </form>
+          <div class="auth-divider my-3"><span>or</span></div>
+          <p class="text-center text-muted mb-0">
+            Already have an account?
+            <a href="{{ url_for('login') }}" class="text-accent fw-600">Sign in</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function togglePwd(id) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById('eyeIcon-' + id);
+    input.type = input.type === 'password' ? 'text' : 'password';
+    icon.className = input.type === 'text' ? 'bi bi-eye-slash' : 'bi bi-eye';
+  }
+
+  // Password strength
+  document.getElementById('password').addEventListener('input', function() {
+    const v = this.value;
+    const bar = document.getElementById('strengthBar');
+    let strength = 0;
+    if (v.length >= 6) strength++;
+    if (/[A-Z]/.test(v)) strength++;
+    if (/[0-9]/.test(v)) strength++;
+    if (/[^A-Za-z0-9]/.test(v)) strength++;
+    const labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    const classes = ['', 'strength-weak', 'strength-fair', 'strength-good', 'strength-strong'];
+    bar.className = 'password-strength mt-1 ' + (classes[strength] || '');
+    bar.textContent = strength > 0 ? labels[strength] : '';
+  });
+
+  // Confirm match
+  document.getElementById('confirm_password').addEventListener('input', function() {
+    const pwd = document.getElementById('password').value;
+    const el = document.getElementById('matchStatus');
+    if (this.value === pwd) {
+      el.textContent = '✓ Passwords match';
+      el.className = 'form-text text-success';
+    } else {
+      el.textContent = '✗ Passwords do not match';
+      el.className = 'form-text text-danger';
+    }
+  });
+</script>
+{% endblock %}

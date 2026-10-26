@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+  <div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+      <div class="col-md-6 col-lg-5">
+        <div class="auth-card glass-card">
+          <div class="auth-header text-center mb-4">
+            <div class="auth-icon"><i class="bi bi-person-circle"></i></div>
+            <h2 class="auth-title mt-3">Welcome Back</h2>
+            <p class="text-muted">Sign in to your HealthAI account</p>
+          </div>
+          <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+              <label for="username" class="form-label">Username</label>
+              <div class="input-group-custom">
+                <i class="bi bi-person input-icon"></i>
+                <input type="text" class="form-control form-control-custom" id="username"
+                       name="username" placeholder="Enter your username" required autofocus />
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <div class="input-group-custom">
+                <i class="bi bi-lock input-icon"></i>
+                <input type="password" class="form-control form-control-custom" id="password"
+                       name="password" placeholder="Enter your password" required />
+                <button type="button" class="input-icon-right" onclick="togglePwd('password')">
+                  <i class="bi bi-eye" id="eyeIcon-password"></i>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-accent btn-lg w-100 btn-glow mt-2">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+            </button>
+          </form>
+          <div class="auth-divider my-3">
+            <span>or</span>
+          </div>
+          <p class="text-center text-muted mb-0">
+            Don't have an account?
+            <a href="{{ url_for('register') }}" class="text-accent fw-600">Create one free</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  function togglePwd(id) {
+    const input = document.getElementById(id);
+    const icon = document.getElementById('eyeIcon-' + id);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.className = 'bi bi-eye-slash';
+    } else {
+      input.type = 'password';
+      icon.className = 'bi bi-eye';
+    }
+  }
+</script>
+{% endblock %}

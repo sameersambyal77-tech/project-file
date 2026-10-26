@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block title %}Home — ML Disease Risk Prediction{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════════════════ HERO ═══════════════════════ -->
+<section class="hero-section" id="hero">
+  <div class="hero-bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="container hero-container">
+    <div class="row align-items-center gy-5">
+      <div class="col-lg-6" data-aos="fade-right">
+        <div class="hero-badge mb-3">
+          <i class="bi bi-stars me-2"></i>AI-Powered Health Intelligence
+        </div>
+        <h1 class="hero-title">
+          Predict Disease Risk<br/>
+          <span class="gradient-text">Before It's Too Late</span>
+        </h1>
+        <p class="hero-subtitle mt-3">
+          Our advanced machine learning system analyses 11 clinical parameters to assess your
+          diabetes risk with up to <strong>95% accuracy</strong>. Get instant, actionable health insights.
+        </p>
+        <div class="hero-cta mt-4 d-flex gap-3 flex-wrap">
+          <a href="{{ url_for('predict') }}" class="btn btn-accent btn-lg px-4 btn-glow">
+            <i class="bi bi-activity me-2"></i>Check Your Risk Now
+          </a>
+          <a href="{{ url_for('about') }}" class="btn btn-outline-glass btn-lg px-4">
+            <i class="bi bi-info-circle me-2"></i>Learn More
+          </a>
+        </div>
+        <!-- Badges -->
+        <div class="hero-badges mt-4 d-flex gap-3 flex-wrap">
+          <span class="trust-badge"><i class="bi bi-shield-check"></i> 5 ML Models</span>
+          <span class="trust-badge"><i class="bi bi-lock"></i> Private & Secure</span>
+          <span class="trust-badge"><i class="bi bi-lightning-fill"></i> Instant Results</span>
+        </div>
+      </div>
+      <div class="col-lg-6 d-flex justify-content-center">
+        <div class="hero-card-wrapper">
+          <div class="hero-stat-card glass-card">
+            <div class="stat-ring">
+              <svg viewBox="0 0 100 100" class="ring-svg">
+                <circle cx="50" cy="50" r="45" class="ring-bg"/>
+                <circle cx="50" cy="50" r="45" class="ring-fill" style="stroke-dasharray: 220 283;"/>
+              </svg>
+              <div class="ring-label">
+                <span class="ring-number">95%</span>
+                <span class="ring-text">Accuracy</span>
+              </div>
+            </div>
+            <div class="mini-stats mt-3">
+              <div class="mini-stat">
+                <span class="ms-value">{{ stats.get('total_predictions', '1000+') }}</span>
+                <span class="ms-label">Predictions</span>
+              </div>
+              <div class="mini-stat">
+                <span class="ms-value">5</span>
+                <span class="ms-label">ML Models</span>
+              </div>
+              <div class="mini-stat">
+                <span class="ms-value">11</span>
+                <span class="ms-label">Features</span>
+              </div>
+            </div>
+          </div>
+          <!-- Floating cards -->
+          <div class="float-card float-card-1 glass-card-sm">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            <span>Low Risk Detected</span>
+          </div>
+          <div class="float-card float-card-2 glass-card-sm">
+            <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+            <span>Report Ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ STATS BAR ═══════════════════════ -->
+<section class="stats-bar py-4">
+  <div class="container">
+    <div class="row text-center gy-3">
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number text-accent">1000+</div>
+          <div class="stat-label">Patients Analysed</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number text-accent">95%</div>
+          <div class="stat-label">Best Accuracy</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number text-accent">5</div>
+          <div class="stat-label">ML Algorithms</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="stat-item">
+          <div class="stat-number text-accent">11</div>
+          <div class="stat-label">Clinical Features</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ FEATURES ═══════════════════════ -->
+<section class="features-section section-padding" id="features">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-badge">Capabilities</span>
+      <h2 class="section-title mt-2">Everything You Need for<br/><span class="gradient-text">Health Risk Analysis</span></h2>
+      <p class="section-subtitle">A complete AI platform built for patients, researchers, and healthcare professionals.</p>
+    </div>
+    <div class="row gy-4">
+      {% set features = [
+        ('bi-activity', 'gradient-purple', 'Instant Prediction', 'Enter 11 clinical parameters and get your disease risk assessment in milliseconds.'),
+        ('bi-bar-chart-line', 'gradient-blue', 'Model Comparison', 'Compare Logistic Regression, Random Forest, SVM, KNN, and Decision Tree performance.'),
+        ('bi-file-earmark-pdf', 'gradient-pink', 'PDF Reports', 'Download a professional, detailed health report for any prediction.'),
+        ('bi-table', 'gradient-green', 'Batch Prediction', 'Upload a CSV file to predict risk for hundreds of patients at once.'),
+        ('bi-shield-check', 'gradient-orange', 'Risk Stratification', 'Automatically categorises patients into Low, Medium, or High risk groups.'),
+        ('bi-lightbulb', 'gradient-teal', 'Smart Recommendations', 'Personalised, evidence-based health recommendations per risk level.'),
+        ('bi-moon-stars', 'gradient-indigo', 'Dark Mode', 'Comfortable, eye-friendly interface optimised for all lighting conditions.'),
+        ('bi-person-badge', 'gradient-rose', 'Secure Dashboard', 'Manage your full prediction history with login/register authentication.'),
+      ] %}
+      {% for icon, grad, title, desc in features %}
+      <div class="col-sm-6 col-lg-3">
+        <div class="feature-card glass-card h-100">
+          <div class="feature-icon {{ grad }}">
+            <i class="bi {{ icon }}"></i>
+          </div>
+          <h5 class="feature-title mt-3">{{ title }}</h5>
+          <p class="feature-desc">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ ML MODELS OVERVIEW ═══════════════════════ -->
+<section class="models-section section-padding bg-section">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-badge">Algorithms</span>
+      <h2 class="section-title mt-2">5 Powerful <span class="gradient-text">ML Models</span></h2>
+      <p class="section-subtitle">We train and evaluate multiple algorithms, then automatically select the best-performing one.</p>
+    </div>
+    <div class="row gy-4 justify-content-center">
+      {% set models = [
+        ('Logistic Regression', 'bi-graph-up-arrow', 'A classic linear classifier, fast and interpretable.', '#6C63FF'),
+        ('Decision Tree', 'bi-diagram-3', 'Rule-based tree structure, highly explainable.', '#FF6584'),
+        ('Random Forest', 'bi-tree', '150 decision trees ensemble for robust performance.', '#43C6AC'),
+        ('Support Vector Machine', 'bi-bounding-box', 'Finds optimal hyperplane in high-dimensional space.', '#F7B731'),
+        ('K-Nearest Neighbors', 'bi-bullseye', 'Classifies based on proximity to training examples.', '#FC5C7D'),
+      ] %}
+      {% for name, icon, desc, color in models %}
+      <div class="col-sm-6 col-lg-4">
+        <div class="model-card glass-card h-100">
+          <div class="model-icon-wrap" style="--model-color: {{ color }}">
+            <i class="bi {{ icon }}"></i>
+          </div>
+          <h5 class="model-name mt-3">{{ name }}</h5>
+          <p class="model-desc">{{ desc }}</p>
+          <a href="{{ url_for('comparison') }}" class="btn btn-sm btn-outline-accent mt-auto">
+            View Results <i class="bi bi-arrow-right ms-1"></i>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ HOW IT WORKS ═══════════════════════ -->
+<section class="how-section section-padding">
+  <div class="container">
+    <div class="section-header text-center mb-5">
+      <span class="section-badge">Process</span>
+      <h2 class="section-title mt-2">How It <span class="gradient-text">Works</span></h2>
+    </div>
+    <div class="row gy-4 justify-content-center">
+      {% set steps = [
+        ('1', 'bi-pencil-square', 'Enter Patient Data', 'Fill the 11-field clinical assessment form with the patient\'s health data.'),
+        ('2', 'bi-cpu', 'ML Processing', 'Our best-performing ML model analyses all input features simultaneously.'),
+        ('3', 'bi-graph-up', 'Risk Analysis', 'The system calculates risk probability and determines the risk tier.'),
+        ('4', 'bi-file-earmark-check', 'Get Your Report', 'View your result, read recommendations, and download a PDF report.'),
+      ] %}
+      {% for step, icon, title, desc in steps %}
+      <div class="col-sm-6 col-lg-3">
+        <div class="step-card text-center">
+          <div class="step-number">{{ step }}</div>
+          <div class="step-icon"><i class="bi {{ icon }}"></i></div>
+          <h5 class="step-title mt-3">{{ title }}</h5>
+          <p class="step-desc">{{ desc }}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════ CTA ═══════════════════════ -->
+<section class="cta-section section-padding">
+  <div class="container">
+    <div class="cta-card glass-card text-center">
+      <div class="cta-orbs">
+        <div class="cta-orb cta-orb-1"></div>
+        <div class="cta-orb cta-orb-2"></div>
+      </div>
+      <h2 class="cta-title">Ready to Check Your Risk?</h2>
+      <p class="cta-subtitle">It only takes 2 minutes. No personal data is shared.</p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap mt-4">
+        <a href="{{ url_for('predict') }}" class="btn btn-accent btn-lg px-5 btn-glow">
+          <i class="bi bi-activity me-2"></i>Start Prediction
+        </a>
+        {% if not current_user %}
+        <a href="{{ url_for('register') }}" class="btn btn-outline-glass btn-lg px-5">
+          <i class="bi bi-person-plus me-2"></i>Create Free Account
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

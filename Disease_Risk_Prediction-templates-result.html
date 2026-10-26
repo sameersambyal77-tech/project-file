@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Prediction Result — {{ result.risk_level }} Risk{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content text-center">
+      <span class="section-badge mb-3"><i class="bi bi-clipboard-check me-1"></i>Analysis Complete</span>
+      <h1 class="page-hero-title">Your <span class="gradient-text">Risk Assessment</span> Result</h1>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container">
+    <div class="row justify-content-center gy-4">
+
+      <!-- ── Result Card ── -->
+      <div class="col-lg-7">
+        <div class="result-card glass-card risk-{{ result.risk_level | lower }}">
+          <!-- Risk Badge -->
+          <div class="result-header text-center">
+            <div class="risk-icon-wrap risk-icon-{{ result.risk_level | lower }}">
+              <i class="bi {{ result.recommendation.icon }}"></i>
+            </div>
+            <h2 class="result-risk-title mt-3">{{ result.recommendation.title }}</h2>
+            <p class="result-model-badge">
+              <i class="bi bi-cpu me-1"></i>Model: <strong>{{ result.model_name }}</strong>
+            </p>
+          </div>
+
+          <!-- Risk Gauge -->
+          <div class="risk-gauge-container my-4">
+            <div class="risk-gauge">
+              <div class="gauge-arc">
+                <svg viewBox="0 0 200 110" class="gauge-svg">
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="#2D3748" stroke-width="16" stroke-linecap="round"/>
+                  <path id="gaugeArc" d="M 20 100 A 80 80 0 0 1 180 100" fill="none"
+                        stroke="{{ '#28a745' if result.risk_level == 'Low' else '#ffc107' if result.risk_level == 'Medium' else '#dc3545' }}"
+                        stroke-width="16" stroke-linecap="round"
+                        stroke-dasharray="0 251" class="gauge-fill"/>
+                  <text x="100" y="90" text-anchor="middle" class="gauge-percent" fill="white" font-size="22" font-weight="bold">
+                    {{ result.probability }}%
+                  </text>
+                  <text x="100" y="108" text-anchor="middle" fill="#94A3B8" font-size="9">Risk Probability</text>
+                </svg>
+              </div>
+              <div class="gauge-labels">
+                <span class="gauge-low">0%</span>
+                <span class="gauge-high">100%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Metrics Row -->
+          <div class="result-metrics row text-center gy-3 mb-4">
+            <div class="col-4">
+              <div class="metric-box">
+                <div class="metric-value {{ 'text-success' if result.prediction == 0 else 'text-danger' }}">
+                  {{ 'No Risk' if result.prediction == 0 else 'At Risk' }}
+                </div>
+                <div class="metric-label">Prediction</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="metric-box">
+                <div class="metric-value">{{ result.probability }}%</div>
+                <div class="metric-label">Probability</div>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="metric-box">
+                <div class="metric-value text-{{ result.recommendation.color }}">{{ result.risk_level }}</div>
+                <div class="metric-label">Risk Level</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{{ url_for('predict') }}" class="btn btn-outline-glass">
+              <i class="bi bi-arrow-repeat me-2"></i>New Prediction
+            </a>
+            {% if result.get('pred_id') %}
+            <a href="{{ url_for('download_report', pred_id=result.pred_id) }}" class="btn btn-accent btn-glow">
+              <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF Report
+            </a>
+            {% endif %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-glass">
+              <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Recommendations & Patient Data ── -->
+      <div class="col-lg-5">
+
+        <!-- Recommendations Card -->
+        <div class="glass-card mb-4">
+          <h5 class="card-section-title">
+            <i class="bi bi-lightbulb-fill text-warning me-2"></i>Health Recommendations
+          </h5>
+          <p class="text-muted small mb-3">{{ result.recommendation.action }}</p>
+          <ul class="recommendation-list">
+            {% for tip in result.recommendation.tips %}
+            <li class="rec-item">
+              <div class="rec-dot rec-dot-{{ result.recommendation.color }}"></div>
+              <span>{{ tip }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Patient Summary Card -->
+        <div class="glass-card">
+          <h5 class="card-section-title">
+            <i class="bi bi-person-badge-fill text-accent me-2"></i>Patient Summary
+          </h5>
+          <div class="patient-summary-grid">
+            {% set fields = [
+              ('Age', form_data.Age, 'bi-calendar3', 'years'),
+              ('Gender', form_data.Gender, 'bi-gender-ambiguous', ''),
+              ('BMI', form_data.BMI, 'bi-speedometer', 'kg/m²'),
+              ('Blood Pressure', form_data.BloodPressure, 'bi-droplet-fill', 'mmHg'),
+              ('Glucose', form_data.Glucose, 'bi-thermometer-half', 'mg/dL'),
+              ('Insulin', form_data.Insulin, 'bi-moisture', 'μU/mL'),
+              ('Heart Rate', form_data.HeartRate, 'bi-heart', 'bpm'),
+              ('Cholesterol', form_data.Cholesterol, 'bi-bar-chart-fill', 'mg/dL'),
+              ('Smoking', form_data.SmokingStatus, 'bi-wind', ''),
+              ('Family History', form_data.FamilyHistory, 'bi-people-fill', ''),
+              ('Exercise', form_data.ExerciseLevel, 'bi-bicycle', ''),
+            ] %}
+            {% for label, value, icon, unit in fields %}
+            <div class="ps-item">
+              <div class="ps-label">
+                <i class="bi {{ icon }} me-1 text-accent"></i>{{ label }}
+              </div>
+              <div class="ps-value">{{ value }}{% if unit %} <small class="text-muted">{{ unit }}</small>{% endif %}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-lg-12">
+        <div class="disclaimer-box">
+          <i class="bi bi-exclamation-circle-fill me-2"></i>
+          <strong>Medical Disclaimer:</strong> This AI prediction is for educational and screening purposes only.
+          It is NOT a medical diagnosis. Always consult a qualified healthcare professional for proper diagnosis and treatment.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Animate gauge on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const prob = {{ result.probability }};
+    const maxArc = 251; // half-circle circumference
+    const fillLen = (prob / 100) * maxArc;
+    const arc = document.getElementById('gaugeArc');
+    if (arc) {
+      setTimeout(() => {
+        arc.style.transition = 'stroke-dasharray 1.4s cubic-bezier(0.4,0,0.2,1)';
+        arc.setAttribute('stroke-dasharray', `${fillLen} ${maxArc}`);
+      }, 200);
+    }
+  });
+</script>
+{% endblock %}

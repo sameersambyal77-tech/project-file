@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-content">
+      <span class="section-badge mb-3"><i class="bi bi-shield-lock me-1"></i>Administration</span>
+      <h1 class="page-hero-title">Admin <span class="gradient-text">Dashboard</span></h1>
+      <p class="page-hero-subtitle">System overview, user management, and prediction analytics.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section-padding">
+  <div class="container">
+
+    <!-- System Stats -->
+    <div class="row gy-3 mb-4">
+      {% set stat_cards = [
+        ('Total Users', stats.total_users, 'bi-people-fill', 'text-accent', 'Total registered patients'),
+        ('Total Predictions', stats.total_predictions, 'bi-clipboard-data-fill', 'text-info', 'All-time predictions run'),
+        ('High Risk', stats.high_risk, 'bi-heart-pulse-fill', 'text-danger', 'Patients at high risk'),
+        ('Medium Risk', stats.medium_risk, 'bi-exclamation-triangle-fill', 'text-warning', 'Medium risk assessments'),
+        ('Low Risk', stats.low_risk, 'bi-shield-check-fill', 'text-success', 'Low risk assessments'),
+      ] %}
+      {% for label, value, icon, color, hint in stat_cards %}
+      <div class="col-6 col-md-4 col-lg-2-custom">
+        <div class="dash-stat-card glass-card text-center h-100">
+          <div class="dash-stat-icon {{ color }}"><i class="bi {{ icon }}"></i></div>
+          <div class="dash-stat-num {{ color }}">{{ value }}</div>
+          <div class="dash-stat-label">{{ label }}</div>
+          <small class="text-muted">{{ hint }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Charts Row -->
+    {% if stats.total_predictions > 0 %}
+    <div class="row gy-4 mb-4">
+      <div class="col-lg-6">
+        <div class="glass-card">
+          <h5 class="card-section-title mb-3"><i class="bi bi-pie-chart-fill me-2 text-accent"></i>Risk Distribution</h5>
+          <canvas id="riskPieChart" height="220"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="glass-card">
+          <h5 class="card-section-title mb-3"><i class="bi bi-bar-chart-fill me-2 text-accent"></i>Predictions Overview</h5>
+          <canvas id="predBarChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- User Management -->
+    <div class="glass-card mb-4">
+      <h5 class="card-section-title mb-4"><i class="bi bi-people-fill me-2 text-accent"></i>Registered Users</h5>
+      <div class="table-responsive">
+        <table class="table metrics-table">
+          <thead>
+            <tr><th>#</th><th>Username</th><th>Email</th><th>Role</th><th>Joined</th></tr>
+          </thead>
+          <tbody>
+            {% for u in users %}
+            <tr>
+              <td class="text-muted">{{ u.id }}</td>
+              <td>
+                <span class="avatar-circle-sm">{{ u.username[0].upper() }}</span>
+                {{ u.username }}
+              </td>
+              <td class="text-muted small">{{ u.email }}</td>
+              <td>
+                <span class="badge {{ 'bg-danger' if u.role == 'admin' else 'bg-secondary' }}">
+                  {{ u.role }}
+                </span>
+              </td>
+              <td class="text-muted small">{{ u.created_at[:10] }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- All Predictions -->
+    <div class="glass-card">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h5 class="card-section-title mb-0"><i class="bi bi-list-columns-reverse me-2 text-accent"></i>All Predictions</h5>
+        <input type="text" class="form-control form-control-custom" style="max-width:240px"
+               id="adminSearch" placeholder="🔍 Search..." />
+      </div>
+      <div class="table-responsive">
+        <table class="table metrics-table" id="adminTable">
+          <thead>
+            <tr><th>#</th><th>User</th><th>Age</th><th>Glucose</th><th>BMI</th><th>Risk</th><th>Prob</th><th>Model</th><th>Date</th><th>PDF</th></tr>
+          </thead>
+          <tbody>
+            {% for p in predictions %}
+            <tr>
+              <td class="text-muted small">{{ p.id }}</td>
+              <td>{{ p.username or 'Guest' }}</td>
+              <td>{{ p.age }}</td>
+              <td>{{ p.glucose }}</td>
+              <td>{{ "%.1f"|format(p.bmi) }}</td>
+              <td>
+                <span class="risk-badge risk-{{ p.risk_level | lower }}">{{ p.risk_level }}</span>
+              </td>
+              <td>{{ "%.1f"|format(p.probability) }}%</td>
+              <td class="small text-muted">{{ p.model_name }}</td>
+              <td class="small text-muted">{{ p.created_at[:10] }}</td>
+              <td>
+                <a href="{{ url_for('download_report', pred_id=p.id) }}"
+                   class="btn btn-sm btn-outline-accent"><i class="bi bi-file-pdf"></i></a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+  // Risk Pie Chart
+  {% if stats.total_predictions > 0 %}
+  const pieCtx = document.getElementById('riskPieChart').getContext('2d');
+  new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Low Risk', 'Medium Risk', 'High Risk'],
+      datasets: [{
+        data: [{{ stats.low_risk }}, {{ stats.medium_risk }}, {{ stats.high_risk }}],
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+        borderColor: '#1E293B',
+        borderWidth: 3,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { labels: { color: '#94A3B8', font: { size: 12 } } }
+      }
+    }
+  });
+
+  // Bar Chart
+  const barCtx = document.getElementById('predBarChart').getContext('2d');
+  new Chart(barCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Total', 'Low Risk', 'Medium Risk', 'High Risk'],
+      datasets: [{
+        label: 'Predictions',
+        data: [{{ stats.total_predictions }}, {{ stats.low_risk }}, {{ stats.medium_risk }}, {{ stats.high_risk }}],
+        backgroundColor: ['#6C63FF', '#28a745', '#ffc107', '#dc3545'],
+        borderRadius: 6,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { color: '#94A3B8' }, grid: { color: '#334155' } },
+        x: { ticks: { color: '#94A3B8' }, grid: { display: false } },
+      }
+    }
+  });
+  {% endif %}
+
+  // Table search
+  document.getElementById('adminSearch').addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#adminTable tbody tr').forEach(r => {
+      r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+</script>
+{% endblock %}
